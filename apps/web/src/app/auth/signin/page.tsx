@@ -2,17 +2,21 @@
 
 import { useState } from 'react';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 export default function SignIn() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/v1/auth/magic-link', {
+      const response = await fetch(`${API_BASE_URL}/v1/auth/magic-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -20,9 +24,12 @@ export default function SignIn() {
 
       if (response.ok) {
         setSubmitted(true);
+      } else {
+        setError('Failed to send magic link. Please try again.');
       }
     } catch (error) {
       console.error('Error requesting magic link:', error);
+      setError('Cannot connect to API. Please check your connection.');
     } finally {
       setLoading(false);
     }
@@ -51,6 +58,13 @@ export default function SignIn() {
       <div className="w-full max-w-md">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
           <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
+          
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-red-600 dark:text-red-300 text-sm">{error}</p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium mb-2">
