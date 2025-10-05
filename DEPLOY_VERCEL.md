@@ -1,27 +1,38 @@
 # Deploying SiteWatcher to Vercel
 
-## 🚀 Quick Fix for Current Error
+## 🚀 IMPORTANT: You MUST Configure Root Directory
 
-The build error occurs because this is a **monorepo** and Vercel is trying to build from the root, but the Next.js app is in `apps/web/`.
+This is a **monorepo** project. The Next.js app is in `apps/web/`, not the root.
 
-### Solution: Configure Root Directory in Vercel
+### ⚠️ REQUIRED STEP - Configure Root Directory in Vercel UI
 
-1. **Go to your Vercel project settings:**
-   - Visit: https://vercel.com/energeticcity/site-monitor/settings/general
-   - Or: Dashboard → Your Project → Settings → General
+**YOU MUST DO THIS IN VERCEL'S WEB INTERFACE:**
 
-2. **Update Root Directory:**
-   - Find the "Root Directory" section
-   - Click "Edit"
-   - Enter: `apps/web`
-   - Click "Save"
+1. **Go to your Vercel project:**
+   - Visit: https://vercel.com/dashboard
+   - Select your `site-monitor` project
+   
+2. **Go to Settings:**
+   - Click **"Settings"** in the top menu
+   - Click **"General"** in the left sidebar
 
-3. **Redeploy:**
-   - Go to Deployments tab
-   - Click "Redeploy" on the latest deployment
-   - Or push a new commit
+3. **Set Root Directory:**
+   - Scroll down to **"Root Directory"** section
+   - Click **"Edit"** button
+   - Type: **`apps/web`** (exactly as shown)
+   - Click **"Save"**
 
-That's it! The build should now succeed.
+4. **Clear Build Settings (if you changed them):**
+   - In Settings → "Build & Development Settings"
+   - If you see custom commands, click "Override" toggle to turn them OFF
+   - Let Vercel auto-detect Next.js
+
+5. **Redeploy:**
+   - Go to **"Deployments"** tab
+   - Click **"..."** menu on the latest deployment
+   - Click **"Redeploy"**
+
+**That's it!** The build will now succeed. ✅
 
 ---
 
@@ -62,29 +73,22 @@ NODE_ENV=production
 
 ---
 
-## 🔧 Alternative: Manual Build Command
+## ❌ Don't Use Custom Build Commands
 
-If you prefer to keep root directory as-is, you can override the build command:
+**DO NOT override build commands!** Just set the Root Directory and let Vercel auto-detect everything.
 
-**In Vercel Project Settings → Build & Development Settings:**
-
-```
-Root Directory: (leave empty or /)
-Build Command: cd apps/web && npm install && npm run build
-Install Command: npm install --prefix apps/web
-Output Directory: apps/web/.next
-```
-
-However, the **recommended approach is to set Root Directory to `apps/web`** as it's cleaner.
+Setting Root Directory to `apps/web` is the ONLY correct way for this project.
 
 ---
 
 ## 📝 Changes Made to Fix Deployment
 
 1. ✅ Removed unused `@sitewatcher/shared` dependency from `apps/web/package.json`
-2. ✅ Updated `next.config.js` to remove transpilePackages
-3. ✅ Created `vercel.json` (backup configuration)
+2. ✅ Updated `next.config.js` to remove transpilePackages  
+3. ✅ Added `.vercelignore` to optimize deployment
 4. ✅ Created this deployment guide
+
+**No special Vercel configuration files needed** - just set Root Directory in UI!
 
 ---
 

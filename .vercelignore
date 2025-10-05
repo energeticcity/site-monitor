@@ -1,0 +1,8 @@
+# Ignore everything except the web app when deploying
+apps/api/
+packages/
+tests/
+infra/
+*.md
+!apps/web/
+
