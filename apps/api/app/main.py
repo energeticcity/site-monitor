@@ -1,5 +1,6 @@
 """Main FastAPI application."""
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,10 +14,18 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# CORS origins - supports multiple origins via comma-separated env var
+# Example: CORS_ORIGINS=http://localhost:3000,https://myapp.vercel.app,https://example.com
+cors_origins_str = os.getenv(
+    "CORS_ORIGINS", 
+    "http://localhost:3000"
+)
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",")]
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js dev server
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
