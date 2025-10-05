@@ -206,7 +206,7 @@ export default function SiteDetail() {
                 No items discovered yet.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-500">
-                Click "Check Now" to manually trigger a discovery run.
+                Click &quot;Check Now&quot; to manually trigger a discovery run.
               </p>
             </div>
           ) : (
