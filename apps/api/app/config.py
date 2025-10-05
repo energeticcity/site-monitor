@@ -37,8 +37,8 @@ class Settings(BaseSettings):
     skip_contract_tests: bool = False
 
     # Super Admin
-    super_admin_email: str = "admin@sitewatcher.app"
-    super_admin_name: str = "Super Admin"
+    super_admin_email: str = "areaburn@moosemediafsj.ca"
+    super_admin_name: str = "Adam Reaburn"
 
 
 settings = Settings()
