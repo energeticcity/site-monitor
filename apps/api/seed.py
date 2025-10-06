@@ -1,11 +1,22 @@
 """Database seeding script for production deployment."""
 
+import hashlib
+import secrets
 from datetime import datetime, timedelta
 
 from app.config import settings
 from app.database import SessionLocal
 from app.models import Invite, Role, Tenant, User, UserTenant
-from app.utils.auth import create_invite_token, hash_token
+
+
+def create_invite_token() -> str:
+    """Create an invite token."""
+    return secrets.token_urlsafe(32)
+
+
+def hash_token(token: str) -> str:
+    """Hash a token using SHA256."""
+    return hashlib.sha256(token.encode()).hexdigest()
 
 
 def seed_database() -> None:
