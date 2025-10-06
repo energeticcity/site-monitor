@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from app.config import settings
 from app.database import SessionLocal
-from app.models import Invite, Role, Tenant, User, UserTenant
+from app.models import Invite, Tenant, User, UserTenant
 
 
 def create_invite_token() -> str:
@@ -50,7 +50,7 @@ def seed_database() -> None:
 
         # Associate super admin with demo tenant
         super_admin_assoc = UserTenant(
-            user_id=super_admin.id, tenant_id=demo_tenant.id, role=Role.SUPER_ADMIN
+            user_id=super_admin.id, tenant_id=demo_tenant.id, role="super_admin"
         )
         db.add(super_admin_assoc)
         print("✓ Associated Super Admin with Demo Tenant")
@@ -60,7 +60,7 @@ def seed_database() -> None:
         admin_invite = Invite(
             email="demo-admin@sitewatcher.app",
             tenant_id=demo_tenant.id,
-            role=Role.ADMIN,
+            role="admin",
             token_hash=hash_token(admin_token),
             expires_at=datetime.utcnow() + timedelta(days=7),
             created_at=datetime.utcnow(),
@@ -74,7 +74,7 @@ def seed_database() -> None:
         member_invite = Invite(
             email="demo-member@sitewatcher.app",
             tenant_id=demo_tenant.id,
-            role=Role.MEMBER,
+            role="member",
             token_hash=hash_token(member_token),
             expires_at=datetime.utcnow() + timedelta(days=7),
             created_at=datetime.utcnow(),
