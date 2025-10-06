@@ -58,7 +58,7 @@ def seed_database() -> None:
         # Create demo admin invite
         admin_token = create_invite_token()
         admin_invite = Invite(
-            email="demo-admin@sitewatcher.app",
+            email="areaburn@moosemediafsj.ca",
             tenant_id=demo_tenant.id,
             role="admin",
             token_hash=hash_token(admin_token),
