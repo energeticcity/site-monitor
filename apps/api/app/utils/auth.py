@@ -1,5 +1,6 @@
 """Authentication utilities."""
 
+import hashlib
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional
@@ -13,13 +14,14 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_token(token: str) -> str:
-    """Hash a token."""
-    return pwd_context.hash(token)
+    """Hash a token using SHA256 (for invite/magic link tokens)."""
+    return hashlib.sha256(token.encode()).hexdigest()
 
 
 def verify_token(token: str, hashed: str) -> bool:
     """Verify a token against its hash."""
-    return pwd_context.verify(token, hashed)
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    return token_hash == hashed
 
 
 def create_magic_link_token() -> str:
