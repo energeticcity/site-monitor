@@ -4,7 +4,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import api_keys, auth, dashboard, invites, sites, tenants, webhooks
+from app.routers import api_keys, auth, dashboard, invites, seed_endpoint, sites, tenants, webhooks
 from app.database import engine
 from sqlalchemy import text
 
@@ -39,6 +39,7 @@ app.include_router(sites.router)
 app.include_router(webhooks.router)
 app.include_router(api_keys.router)
 app.include_router(dashboard.router)
+app.include_router(seed_endpoint.router)
 
 
 @app.get("/healthz")
