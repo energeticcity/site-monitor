@@ -3,6 +3,8 @@
 from datetime import datetime
 from uuid import uuid4
 
+from sqlalchemy import text
+
 from app.config import settings
 from app.database import engine
 
@@ -14,7 +16,8 @@ def seed_database() -> None:
     with engine.connect() as conn:
         # Check if super admin already exists
         result = conn.execute(
-            f"SELECT id FROM users WHERE email = '{settings.super_admin_email}'"
+            text("SELECT id FROM users WHERE email = :email"),
+            {"email": settings.super_admin_email}
         )
         existing = result.fetchone()
         
@@ -26,29 +29,46 @@ def seed_database() -> None:
         # Create Super Admin user
         user_id = str(uuid4())
         conn.execute(
-            f"""
-            INSERT INTO users (id, email, name, created_at)
-            VALUES ('{user_id}', '{settings.super_admin_email}', '{settings.super_admin_name}', '{datetime.utcnow().isoformat()}')
-            """
+            text("""
+                INSERT INTO users (id, email, name, created_at)
+                VALUES (:user_id, :email, :name, :created_at)
+            """),
+            {
+                "user_id": user_id,
+                "email": settings.super_admin_email,
+                "name": settings.super_admin_name,
+                "created_at": datetime.utcnow()
+            }
         )
         print(f"✓ Created Super Admin: {settings.super_admin_email}")
 
         # Create demo tenant
         tenant_id = str(uuid4())
         conn.execute(
-            f"""
-            INSERT INTO tenants (id, name, plan, created_at)
-            VALUES ('{tenant_id}', 'Demo Tenant', 'free', '{datetime.utcnow().isoformat()}')
-            """
+            text("""
+                INSERT INTO tenants (id, name, plan, created_at)
+                VALUES (:tenant_id, :name, :plan, :created_at)
+            """),
+            {
+                "tenant_id": tenant_id,
+                "name": "Demo Tenant",
+                "plan": "free",
+                "created_at": datetime.utcnow()
+            }
         )
         print(f"✓ Created Demo Tenant: Demo Tenant")
 
         # Associate super admin with demo tenant - LOWERCASE "super_admin"
         conn.execute(
-            f"""
-            INSERT INTO user_tenants (user_id, tenant_id, role)
-            VALUES ('{user_id}', '{tenant_id}', 'super_admin')
-            """
+            text("""
+                INSERT INTO user_tenants (user_id, tenant_id, role)
+                VALUES (:user_id, :tenant_id, :role)
+            """),
+            {
+                "user_id": user_id,
+                "tenant_id": tenant_id,
+                "role": "super_admin"  # LOWERCASE!
+            }
         )
         print("✓ Associated Super Admin with Demo Tenant")
 
