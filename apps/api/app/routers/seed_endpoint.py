@@ -9,6 +9,7 @@ from app.dependencies import require_super_admin
 router = APIRouter(prefix="/v1/admin", tags=["admin"])
 
 
+@router.get("/seed-database")
 @router.post("/seed-database")
 def seed_database_endpoint() -> dict:
     """
