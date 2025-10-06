@@ -78,7 +78,7 @@ class UserTenant(Base):
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True)
     tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), primary_key=True)
-    role = Column(Enum(Role), nullable=False)
+    role = Column(Enum(Role, values_callable=lambda x: [e.value for e in x]), nullable=False)
 
     # Relationships
     user = relationship("User", back_populates="user_tenants")
@@ -186,7 +186,7 @@ class Invite(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     email = Column(String, nullable=False)
     tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False)
-    role = Column(Enum(Role), nullable=False)
+    role = Column(Enum(Role, values_callable=lambda x: [e.value for e in x]), nullable=False)
     token_hash = Column(String, nullable=False, unique=True)
     expires_at = Column(DateTime, nullable=False)
     accepted_at = Column(DateTime)
