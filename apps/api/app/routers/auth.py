@@ -16,6 +16,7 @@ from app.schemas import (
     UserResponse,
     UserTenantResponse,
 )
+from app.config import settings
 from app.utils.auth import create_jwt_token, create_magic_link_token, hash_token, verify_token
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
@@ -78,12 +79,14 @@ def magic_link_callback(
     jwt_token = create_jwt_token(str(user.id))
 
     # Set httpOnly cookie
+    # Use secure=True for production (HTTPS), False for local development
+    is_production = settings.magic_link_base_url.startswith("https://")
     response.set_cookie(
         key="access_token",
         value=jwt_token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",
+        secure=is_production,
+        samesite="none" if is_production else "lax",  # "none" required for cross-site cookies with secure=True
         max_age=60 * 60 * 24 * 30,  # 30 days
     )
 
