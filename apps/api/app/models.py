@@ -113,7 +113,7 @@ class Run(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     site_id = Column(UUID(as_uuid=True), ForeignKey("sites.id"), nullable=False)
-    status = Column(Enum(RunStatus), nullable=False, default=RunStatus.RUNNING)
+    status = Column(Enum(RunStatus, values_callable=lambda x: [e.value for e in x]), nullable=False, default=RunStatus.RUNNING)
     method = Column(String)  # 'profile' or 'discover'
     pages_scanned = Column(Integer, default=0)
     duration_ms = Column(Integer)
