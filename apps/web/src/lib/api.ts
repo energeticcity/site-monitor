@@ -88,9 +88,7 @@ export async function getDashboardStats(tenantId: string): Promise<DashboardStat
     `${API_BASE_URL}/v1/dashboard/stats?tenant_id=${tenantId}`,
     {
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     }
   );
 
@@ -109,9 +107,7 @@ export async function getTeamMembers(tenantId: string): Promise<TeamListResponse
     `${API_BASE_URL}/v1/dashboard/team?tenant_id=${tenantId}`,
     {
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     }
   );
 
@@ -130,9 +126,7 @@ export async function getSites(page: number = 1, limit: number = 100): Promise<S
     `${API_BASE_URL}/v1/sites?page=${page}&limit=${limit}`,
     {
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     }
   );
 
@@ -144,14 +138,23 @@ export async function getSites(page: number = 1, limit: number = 100): Promise<S
 }
 
 /**
+ * Get authorization headers with JWT from localStorage
+ */
+function getAuthHeaders(): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+  };
+}
+
+/**
  * Get current user info
  */
 export async function getCurrentUser(): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/v1/auth/me`, {
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -169,9 +172,7 @@ export async function getRecentItems(tenantId: string, limit: number = 20): Prom
     `${API_BASE_URL}/v1/dashboard/recent-items?tenant_id=${tenantId}&limit=${limit}`,
     {
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     }
   );
 

@@ -29,6 +29,14 @@ function AuthCallbackContent() {
         });
 
         if (response.ok) {
+          const data = await response.json();
+          
+          // Store the JWT token in localStorage for cross-domain access
+          // (Cookie won't work because Railway and Vercel are different domains)
+          if (data.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+          }
+          
           // Successfully authenticated, redirect to dashboard
           router.push('/dashboard');
         } else {
