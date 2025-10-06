@@ -1,1 +1,2 @@
 web: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+# Force rebuild Mon Oct  6 09:53:05 MDT 2025
