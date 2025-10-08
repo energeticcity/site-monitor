@@ -6,6 +6,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import desc
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -188,22 +189,22 @@ def trigger_run(
         new_items_count = 0
         if response.links:
             for link in response.links:
-                # Try to insert, ignore duplicates
-                try:
-                    item = Item(
+                # Insert item; ignore if (site_id, canonical_url) already exists
+                stmt = (
+                    insert(Item)
+                    .values(
                         site_id=site.id,
                         url=link,
                         canonical_url=link,
                         source=response.source,
                         discovered_at=datetime.utcnow(),
                     )
-                    db.add(item)
-                    db.flush()
+                    .on_conflict_do_nothing(index_elements=[Item.site_id, Item.canonical_url])
+                )
+                result = db.execute(stmt)
+                # rowcount is 1 if inserted, 0 if skipped due to conflict
+                if getattr(result, "rowcount", 0) == 1:
                     new_items_count += 1
-                except Exception:
-                    # Duplicate, skip
-                    db.rollback()
-                    continue
 
         # Update run
         run.status = RunStatus.SUCCESS
@@ -241,7 +242,12 @@ def trigger_run(
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Worker error: {str(e)}",
+            detail={
+                "message": "Worker error",
+                "error": str(e),
+                "status_code": e.status_code,
+                "worker_response": e.response,
+            },
         )
 
 
