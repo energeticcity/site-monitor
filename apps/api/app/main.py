@@ -59,6 +59,26 @@ def health_check() -> dict[str, str]:
     }
 
 
+@app.get("/debug/last-error")
+def get_last_error() -> dict:
+    """Get the last run error for debugging."""
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(text(
+                "SELECT status, diagnostics_json, started_at FROM runs "
+                "WHERE status = 'error' ORDER BY started_at DESC LIMIT 1"
+            )).fetchone()
+            if result:
+                return {
+                    "status": result[0],
+                    "diagnostics": result[1],
+                    "started_at": str(result[2])
+                }
+            return {"error": "No error runs found"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/")
 def root() -> dict[str, str]:
     """Root endpoint."""
