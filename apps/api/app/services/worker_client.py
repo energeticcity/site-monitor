@@ -37,21 +37,26 @@ class WorkerClient:
 
     def discover(self, url: str) -> WorkerResponse:
         """Discover new posts on a website."""
-        response = self._post("/discover", {"url": url})
+        response = self._post("/discover", params={"url": url})
         return WorkerResponse(**response)
 
     def rcmp_fsj(self, months_back: Optional[int] = None) -> WorkerResponse:
         """Get RCMP FSJ posts."""
-        body = {"monthsBack": months_back} if months_back is not None else {}
-        response = self._post("/profiles/rcmp-fsj", body)
+        params = {"monthsBack": months_back} if months_back is not None else {}
+        response = self._post("/profiles/rcmp-fsj", params=params)
         return WorkerResponse(**response)
 
-    def _post(self, path: str, body: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    def _post(
+        self, 
+        path: str, 
+        body: Optional[dict[str, Any]] = None,
+        params: Optional[dict[str, Any]] = None
+    ) -> dict[str, Any]:
         """Make a POST request to the Worker."""
         url = f"{self.base_url}{path}"
 
         try:
-            response = self.client.post(url, json=body)
+            response = self.client.post(url, json=body, params=params)
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
