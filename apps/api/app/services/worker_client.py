@@ -33,18 +33,33 @@ class WorkerClient:
     def __init__(self, base_url: str, timeout: int = 30):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
-        self.client = httpx.Client(timeout=timeout)
+        self.client = httpx.Client(
+            timeout=timeout,
+            headers={
+                "User-Agent": "SiteWatcherAPI/0.1 (+railway)",
+                "Accept": "application/json",
+            },
+        )
 
     def discover(self, url: str) -> WorkerResponse:
         """Discover new posts on a website."""
-        response = self._get("/discover", params={"url": url})
-        return WorkerResponse(**response)
+        try:
+            response = self._get("/discover", params={"url": url})
+            return WorkerResponse(**response)
+        except WorkerClientError:
+            # Fallback to POST if GET fails on worker
+            response = self._post("/discover", body=None, params={"url": url})
+            return WorkerResponse(**response)
 
     def rcmp_fsj(self, months_back: Optional[int] = None) -> WorkerResponse:
         """Get RCMP FSJ posts."""
         params = {"monthsBack": months_back} if months_back is not None else {}
-        response = self._get("/profiles/rcmp-fsj", params=params)
-        return WorkerResponse(**response)
+        try:
+            response = self._get("/profiles/rcmp-fsj", params=params)
+            return WorkerResponse(**response)
+        except WorkerClientError:
+            response = self._post("/profiles/rcmp-fsj", body=None, params=params)
+            return WorkerResponse(**response)
 
     def _post(
         self, 
