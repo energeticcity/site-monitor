@@ -37,13 +37,13 @@ class WorkerClient:
 
     def discover(self, url: str) -> WorkerResponse:
         """Discover new posts on a website."""
-        response = self._post("/discover", params={"url": url})
+        response = self._get("/discover", params={"url": url})
         return WorkerResponse(**response)
 
     def rcmp_fsj(self, months_back: Optional[int] = None) -> WorkerResponse:
         """Get RCMP FSJ posts."""
         params = {"monthsBack": months_back} if months_back is not None else {}
-        response = self._post("/profiles/rcmp-fsj", params=params)
+        response = self._get("/profiles/rcmp-fsj", params=params)
         return WorkerResponse(**response)
 
     def _post(
@@ -61,6 +61,29 @@ class WorkerClient:
                 response = self.client.post(url, json=body, params=params)
             else:
                 response = self.client.post(url, params=params)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            raise WorkerClientError(
+                f"Worker request failed: {e.response.status_code}",
+                status_code=e.response.status_code,
+                response=e.response.text,
+            )
+        except httpx.TimeoutException:
+            raise WorkerClientError("Worker request timed out")
+        except Exception as e:
+            raise WorkerClientError(f"Worker request failed: {str(e)}")
+
+    def _get(
+        self,
+        path: str,
+        params: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
+        """Make a GET request to the Worker."""
+        url = f"{self.base_url}{path}"
+
+        try:
+            response = self.client.get(url, params=params)
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
