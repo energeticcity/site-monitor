@@ -11,7 +11,7 @@ from sqlalchemy import text
 app = FastAPI(
     title="SiteWatcher API",
     description="Multi-tenant SaaS for detecting new posts on websites",
-    version="0.1.0",
+    version="0.1.1-test",
 )
 
 # CORS origins - supports multiple origins via comma-separated env var
