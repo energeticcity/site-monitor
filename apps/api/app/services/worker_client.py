@@ -56,7 +56,11 @@ class WorkerClient:
         url = f"{self.base_url}{path}"
 
         try:
-            response = self.client.post(url, json=body, params=params)
+            # Only pass json= if body is not None
+            if body is not None:
+                response = self.client.post(url, json=body, params=params)
+            else:
+                response = self.client.post(url, params=params)
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
